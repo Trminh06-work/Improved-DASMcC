@@ -24,3 +24,7 @@ __pycache__/
 
 # MacOS files
 .DS_Store
+
+# Include
+*.out
+!my_solution/logs/*.out
