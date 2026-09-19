@@ -16,7 +16,6 @@ data/
 *.bak
 
 # Training outputs: model weights are rebuilt by my_solution/train.py
-logs/
 catboost_info/
 
 # Python and Jupyter
