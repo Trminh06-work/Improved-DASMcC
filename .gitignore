@@ -1,0 +1,27 @@
+data/
+
+# LaTeX build files (report/ and presentation/)
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.nav
+*.snm
+*.vrb
+*.bak
+
+# Training outputs: model weights are rebuilt by my_solution/train.py
+logs/
+catboost_info/
+
+# Python and Jupyter
+__pycache__/
+.ipynb_checkpoints/
+
+# MacOS files
+.DS_Store

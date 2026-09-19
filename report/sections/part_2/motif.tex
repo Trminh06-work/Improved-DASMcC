@@ -1,0 +1,22 @@
+In this section, to best compare to the previous results, we shall neither modify their choice of models nor \texttt{SMOTE} as an imbalance–handling strategy.
+Alternatively, we shall replace the feature extraction mechanism. Our proposed solution is based on the significance impact of feature engineering and extraction in Machine Learning community, which has been extensively studied \cite{pmlr-v44-storcheus2015survey, zheng2018feature, sonnadara2026interpretable, MUMUNI2025113}.
+We shall devote this section to state our motivations of this work, as our attempt to achieve better results
+than the reproduced results in \textbf{Sec. \ref{sec:part_1_result_analysis}}.
+Let us briefly discuss the general idea, more detailed descriptions are presented in \textbf{Sec. \ref{sec:part2_method}}.
+
+
+Remarkably, as we identify the results presented in \cite{sinha2023dasmcc} is a misalignment with their experimental setup, and thus,
+we shall perform \texttt{SMOTE} after train/test split, to correctly report models' performance.
+Additionally, we disagree with their flattening approach, i.e. flatten $(12 \times 1000) \rightarrow (12000,)$, as this would break the temporal information and clinical meaning of ECG signals. 
+Alternatively, we shall apply \texttt{neurokit2} to extract features from each ECG lead separately, then concatenate them, i.e. $(12 \times 1000) \rightarrow (12 \times 16) \rightarrow (192,)$.
+
+
+In the realm of Deep Learning, 1D CNN and 2D CNN have been developed to better classify CVDs based on ECG signals \cite{Wu2018ACO, NAROTAMO2024106141, DCNN4ECG}.
+Nonetheless, we shall avoid 2D CNN, as they require working with images, by converting ECG singals into spectrograms, which increase the computational complexity and memory usage of our models.
+We can then extract underlying features from raw ECG signals by applying 1D CNN on each ECG lead, passing through several temporal convolutional layers, and ultimately, we shall apply point–wise CNN kernel to fuse information across expanded leads to attain a $(125,)$ CNN–based feature vector.
+
+By concatenating both hand–crafted \texttt{neurokit2} features and the CNN–based features, the resulting vectors become excessively long.
+In other words, the resulting vector belongs to an extremely high–dimensional space. An infamous problem associating with high–dimensional feature vector is curse of dimensionality,
+which amount to performance degradation of ML/DL models \cite{dimreductreview, peng2025interpretingcursedimensionalitydistance,jia2022feature}.
+There are various dimensionality reduction techniques can be applied, as surveyed in \cite{dimreductreview,jia2022feature}.
+Driven by curiosity, we shall again utilise a DL–based dimensionality reduction technique, specifically training an Autoencoder \cite{berahmand2024autoencoders}, and subsequently utilise the encoder component to compress the aforementioned concatenated feature vector into a latent feature vector, and eventually feed it into the above–mentioned classifiers.

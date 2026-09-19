@@ -1,0 +1,256 @@
+\documentclass[xcolor=dvipsnames, aspectratio=169]{beamer}
+\usetheme{Madrid}
+
+% ---------------------------------------------------------------- palette
+\definecolor{sage}{RGB}{124,158,132}
+\definecolor{sagedeep}{RGB}{74,108,84}
+\definecolor{sagewash}{RGB}{237,243,238}
+\definecolor{inkgrey}{RGB}{60,64,62}
+\definecolor{clay}{RGB}{176,112,86}
+
+\setbeamercolor{structure}{fg=sagedeep}
+\setbeamercolor{normal text}{fg=inkgrey}
+\setbeamercolor{frametitle}{bg=sagewash, fg=sagedeep}
+\setbeamercolor{title}{bg=sagedeep, fg=white}
+\setbeamercolor{subtitle}{fg=sagewash}
+\setbeamercolor{author}{fg=inkgrey}
+\setbeamercolor{institute}{fg=inkgrey}
+\setbeamercolor{date}{fg=inkgrey}
+\setbeamercolor{palette primary}{bg=sagedeep, fg=white}
+\setbeamercolor{palette secondary}{bg=sage!45, fg=sagedeep}
+\setbeamercolor{palette tertiary}{bg=sagewash, fg=sagedeep}
+\setbeamercolor{palette quaternary}{bg=sagedeep, fg=white}
+\setbeamercolor{block title}{bg=sage!30, fg=sagedeep}
+\setbeamercolor{block body}{bg=sagewash, fg=inkgrey}
+\setbeamercolor{itemize item}{fg=sage}
+\setbeamercolor{itemize subitem}{fg=sage}
+\setbeamercolor{alerted text}{fg=clay}
+\setbeamerfont{frametitle}{series=\bfseries}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize item}{\small\raise0.2ex\hbox{$\bullet$}}
+\setbeamertemplate{itemize subitem}{\scriptsize\raise0.2ex\hbox{$-$}}
+
+% ---------------------------------------------------------------- packages
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+
+\newcommand{\stat}[2]{%
+  \begin{tikzpicture}[baseline=-0.6ex]
+    \node[draw=sage, fill=sagewash, rounded corners=2pt, inner sep=5pt,
+          align=center, minimum width=2.4cm]
+      {\textbf{\large\textcolor{sagedeep}{#1}}\\[-1pt]
+       {\scriptsize\textcolor{inkgrey}{#2}}};
+  \end{tikzpicture}\hspace{0.3em}%
+}
+
+% ---------------------------------------------------------------- metadata
+\title[Reproducing DASMcC]{Reproduction and Extension of DASMcC}
+\subtitle{Multi-Class Cardiovascular Disease Prediction from 12-Lead ECG}
+\author[Bao Minh Tran]{Bao Minh Tran - s224236373}
+\institute[Deakin]{SIT307 - Machine Learning \\
+  \small High Distinction Portfolio Task \enspace\textbar\enspace Deakin University}
+\date{September 2026}
+
+\begin{document}
+
+% ---------------------------------------------------------------- 1. title
+% [0:00-0:15] "I reproduced DASMcC, an IEEE Access paper that reports 93%
+% accuracy on five-class CVD classification from PTB-XL. I could not
+% reproduce it - and I can show you why. Then I'll show what I built instead."
+% Keep this to two sentences. The forensics slide is where the talk earns
+% its marks; do not spend time here.
+\begin{frame}[plain]
+    \titlepage
+\end{frame}
+
+% ---------------------------------------------------------------- 2. the claim
+% [0:15-0:55] Set up the paper fairly before attacking it. The pitch is
+% deployability, not accuracy: 16 hand-crafted time-domain features instead
+% of a deep net on raw signal, light enough for an IoT device. That is a
+% reasonable goal. The 93% is what makes it remarkable - and what I could
+% not get.
+\begin{frame}{The paper, and its claim}
+    \textbf{\textcolor{sagedeep}{DASMcC}} \small(Sinha et al., \emph{IEEE Access}, 2023)\normalsize{}
+    classifies five diagnostic superclasses from \texttt{PTB-XL} 12-lead ECG.
+
+    \vspace{0.4em}
+    Sixteen time-domain features per record via \texttt{neurokit2} - peak positions,
+    peak amplitudes, intervals - then \texttt{SMOTE} and five tree-based classifiers.
+    The pitch is \alert{deployability}: light enough for an IoT device, unlike a deep
+    net on the raw waveform.
+
+    \vspace{0.6em}
+    \begin{center}
+    \stat{21{,}837}{records}\stat{5}{classes}\stat{16}{features}\stat{93.0\,\%}{reported accuracy}
+    \end{center}
+
+    \vspace{0.5em}
+    \begin{block}{What I set out to do}
+        Follow their method exactly, then explain whatever gap appears.
+    \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------- 3. the gap
+% [0:55-1:45] Deliver the number flatly, no drama. 40 against 93. Then
+% immediately say the honest thing: a gap this size is usually MY bug, so
+% the rest of the talk is me proving it isn't. Mention the two protocols -
+% the paper describes both a single 80/20 split and 10-fold CV, which are
+% incompatible, so I implemented both. Neither gets close.
+\begin{frame}{The reproduction, and the gap}
+    Same features, same classifiers, same metrics. The paper describes
+    \emph{both} a single $80/20$ split and $10$-fold CV, which cannot both be true,
+    so I implemented both.
+
+    \vspace{0.5em}
+    \begin{center}
+    \small
+    \begin{tabular}{lcccc}
+        \textbf{Macro-F1} & \texttt{XGBoost} & \texttt{RF} & \texttt{CatBoost} & \texttt{KNN} \\[2pt]
+        \hline \\[-8pt]
+        Published        & $93.0$ & $92.0$ & $89.0$ & $83.0$ \\
+        \textcolor{clay}{Reproduced} & \textcolor{clay}{$39.4$} & \textcolor{clay}{$39.2$}
+                         & \textcolor{clay}{$40.5$} & \textcolor{clay}{$25.4$} \\
+    \end{tabular}
+    \end{center}
+
+    \vspace{0.5em}
+    A shortfall of \alert{46 to 58 F1 points}. Class-wise, the paper's easiest class
+    is HYP at $96$--$99$; mine is NORM, and the three minority classes collapse
+    to $21.7$--$36.0$.
+
+    \vspace{0.4em}
+    \textbf{\textcolor{sagedeep}{A gap that size is normally my own bug.}}
+    So the next slide is the evidence that it is not.
+\end{frame}
+
+% ---------------------------------------------------------------- 4. forensics
+% [1:45-2:40] THIS IS THE SLIDE THAT EARNS THE MARKS. Slow down. Three
+% independent arithmetic facts, all read off their own Figure 7, all
+% pointing the same way. Sum their confusion matrix: 9,083 test records.
+% A clean 20% split of the single-label data is 3,249. Their five row sums
+% are near-identical - only possible if the TEST set was balanced, which a
+% split of imbalanced data never is. And HYP shows 1,796 test records when
+% the whole dataset only holds 2,655. Land it: SMOTE ran BEFORE the split.
+\begin{frame}{Three numbers from their own Figure 7}
+    \begin{itemize}\setlength\itemsep{0.45em}
+        \item Their confusion matrix sums to \textbf{\textcolor{sagedeep}{9{,}083}}
+              test records. A clean $20\,\%$ split of the single-label data gives
+              \textbf{3{,}249}.
+        \item Its five row sums are $1{,}787$--$1{,}854$ - \alert{near-identical}.
+              Splitting imbalanced data never produces a balanced test set.
+        \item HYP shows $1{,}796$ test records. The entire dataset holds
+              \textbf{2{,}655}.
+    \end{itemize}
+
+    \vspace{0.5em}
+    \begin{block}{Conclusion}
+        \texttt{SMOTE} was applied \alert{before} the train/test split. Synthetic
+        minority samples interpolated from training neighbours ended up in the
+        test set.
+    \end{block}
+
+    \vspace{0.4em}
+    Reproducing that leakage deliberately lifts \texttt{RF} from $39.2$ to
+    \textbf{$88.3$} F1 and recovers $80.5$--$88.4\,\%$ accuracy, against their
+    $88.0$--$93.0\,\%$. \textbf{\textcolor{sagedeep}{The gap was never the model.}}
+\end{frame}
+
+% ---------------------------------------------------------------- 5. my method
+% [2:40-3:35] Now pivot from critic to builder. Three changes, each with a
+% reason - do NOT just list them, say WHY each one. (1) They flatten 12
+% leads into one 12,000 vector and delineate that, which is medically
+% meaningless: a P wave in V1 is not a P wave in aVR. I delineate per lead.
+% (2) Hand-crafted features miss what they were not designed to see, so a
+% 1D CNN reads the raw leads. (3) That concatenation is 2,225-dim, which
+% hurts KNN badly - so an autoencoder compresses to 16. Say clearly:
+% both extractors are fitted on the 80% split ONLY.
+\begin{frame}{What I changed, and why}
+    \begin{itemize}\setlength\itemsep{0.4em}
+        \item \textbf{\textcolor{sagedeep}{Delineate per lead.}} They flatten all
+              twelve leads into one $12{,}000$ vector, then look for P, Q, R, S, T
+              in it. A P wave in $V_1$ is not a P wave in aVR - the flattening
+              destroys the clinical meaning. I run \texttt{neurokit2}
+              \alert{on each lead separately}.
+        \item \textbf{\textcolor{sagedeep}{Add learned features.}} Hand-crafted
+              descriptors cannot see what they were not designed for. A 1D CNN
+              reads the raw leads directly: $12\times1000 \rightarrow 125$.
+        \item \textbf{\textcolor{sagedeep}{Then compress.}} Concatenating gives
+              $2{,}100 + 125 = 2{,}225$ dimensions, where distance-based models
+              suffer. An autoencoder compresses to $16$.
+    \end{itemize}
+
+    \vspace{0.5em}
+    \begin{block}{The discipline that makes it honest}
+        Both extractors are fitted on the \alert{$80\,\%$ training split only},
+        with the same seed the notebooks hold out. That is precisely the
+        mistake I accused the paper of.
+    \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------- 6. results
+% [3:35-4:30] SWITCH TO THE NOTEBOOK HERE - this is the required code demo.
+% Show: my_notebook.ipynb, the cell that loads ae16.pt and produces the
+% 16-dim latents, then the results table cell. Come back to the slide for
+% the comparison. Compare against MY reproduction, never against their 93 -
+% say that explicitly, it shows you understand what a fair baseline is.
+% Then be honest about HYP: it barely moves.
+\begin{frame}{Results - against my baseline, not their number}
+    \begin{center}
+    \small
+    \begin{tabular}{lccccc}
+        \textbf{Macro-F1} & \texttt{CatBoost} & \texttt{XGBoost} & \texttt{GBoost} & \texttt{RF} & \texttt{KNN} \\[2pt]
+        \hline \\[-8pt]
+        Reproduction & $40.5$ & $39.4$ & $40.5$ & $39.2$ & $25.4$ \\
+        \textcolor{sagedeep}{\textbf{Proposed}}
+                     & \textcolor{sagedeep}{\textbf{58.4}} & \textcolor{sagedeep}{\textbf{57.5}}
+                     & \textcolor{sagedeep}{\textbf{57.1}} & \textcolor{sagedeep}{\textbf{56.8}}
+                     & \textcolor{sagedeep}{\textbf{47.9}} \\
+    \end{tabular}
+    \end{center}
+
+    \vspace{0.5em}
+    Every classifier improves: \alert{$+16.6$ to $+18.1$} F1 for the ensembles,
+    \alert{$+22.5$} for \texttt{KNN} - the largest gain, which is what the
+    compression was for. Fitting is also $2.6$--$9.8\times$ faster.
+
+    \vspace{0.5em}
+    \begin{block}{What did not improve}
+        HYP stays at $21.7$--$37.3$ F1 and \emph{falls} for three of six models.
+        Precision sits far below recall: every model over-predicts the rarest class.
+    \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------- 7. limits
+% [4:30-5:00] Close on judgement, not achievement. The honest caveat first:
+% Protocol B is not fully clean because the extractors saw 80% of the data,
+% so I quantified it rather than hid it - the held-out gap is 1 to 2.3
+% points. Then the real conclusion: 58 F1 is not a deployable product, and
+% saying so is the point. A reproduction whose value is the diagnosis.
+\begin{frame}{Limits, and what this is worth}
+    \begin{itemize}\setlength\itemsep{0.35em}
+        \item \textbf{My 10-fold numbers are not fully clean either.} The extractors
+              were fitted once on $80\,\%$, so CV folds contain records they have
+              seen. I report the held-out split alongside: the gap is
+              \alert{$1.0$--$2.3$ points}, which bounds the effect.
+        \item \textbf{$58$ F1 is not a product.} It is roughly two thirds of the way
+              to a usable classifier, and saying so plainly matters more than the
+              number.
+        \item \textbf{Single seed, no hyperparameter search.} Differences under a
+              point are not claims I make.
+    \end{itemize}
+
+    \vspace{0.6em}
+    \begin{block}{The finding}
+        The published $93\,\%$ is an artefact of resampling before splitting, not a
+        property of the method. An honest pipeline on the same data and the same
+        classifiers reaches $58$ - and that number is the useful one.
+    \end{block}
+\end{frame}
+
+\end{document}

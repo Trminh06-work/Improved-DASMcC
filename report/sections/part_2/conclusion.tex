@@ -1,0 +1,13 @@
+\label{sec:conclusion}
+
+In this report, we failed to reproduce the results presented in \cite{sinha2023dasmcc}; however, we found evidence in their paper that led to their SoTA results.
+Additionally, we identify critical errors throughout their paper, as raised in \textbf{Sec. \ref{sec:part_1_discrepancy}}. Therefore, though beyond the purpose of this study, we call for an in–depth revision of this paper \cite{sinha2023dasmcc}.
+From the evidence above, e.g. a balanced test set of $9{,}083$ records, we believe they applied \texttt{SMOTE} before the train/test split, introducing data leakage to their test set, and thus, ideal results were obtained.
+To verify this conjecture, we also conduct an ablation study by leaking data in the same way, and obtain close, though not identical, results, i.e. $80.5$–$88.4\%$ accuracy for the ensembles against their $88.0$–$93.0\%$.
+
+Having criticised their paper, we shall propose our Machine Learning solution to the same task, though we compare it to the reproduced results, not their presented results.
+In our solution, we leverage a 1D CNN to extract hidden features that may not be captured by the hand–crafted features extracted by \texttt{neurokit2}.
+We then train an Autoencoder, and utilise its Encoder to compress the $2{,}225$ concatenated features into a $16$–dimensional latent vector, which is fed to the same set of classifiers used in \cite{sinha2023dasmcc}.
+Empirically, the results are only above–average, the ensembles reaching $56.8$–$58.4$ F1, up from $39.2$–$40.5$ in the reproduction, and thus, require more enhancements to reach product quality.
+Remarkably, we also conduct an ablation study to compare whether compressed or uncompressed features benefit the selected classifiers the most.
+Interestingly, the tree–based models gain $8.7$–$18.7$ F1 points by directly training and testing on uncompressed data, though fitting takes $12$–$106\times$ longer. Meanwhile, due to the Curse of Dimensionality, \texttt{KNN} (a distance–based classifier) performs poorly on uncompressed data, dropping from $47.9$ to $38.9$ F1.

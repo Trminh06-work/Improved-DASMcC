@@ -1,0 +1,22 @@
+# --- data handling ---
+numpy>=1.26,<3
+pandas>=2.1
+pyarrow>=14.0    # parquet engine for all *.parquet artefacts
+
+# --- PTB-XL loading and ECG feature extraction ---
+wfdb>=4.1
+neurokit2>=0.2.7
+
+# --- classical ML ---
+scikit-learn>=1.3
+imbalanced-learn>=0.11
+xgboost>=2.0
+catboost>=1.2
+
+# --- DL feature extractors (my_solution/) ---
+torch>=2.1
+
+# --- utilities and plotting ---
+joblib>=1.3
+tqdm>=4.66
+matplotlib>=3.7

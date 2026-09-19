@@ -1,0 +1,150 @@
+%=========================================================
+% Mathematics Report Template - HD Standard
+%=========================================================
+\documentclass[11pt,a4paper]{article}
+
+%---------------- Packages ----------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{multicol}
+\geometry{a4paper, margin=2.5cm}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{angles,quotes} % for angle marks
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usetikzlibrary{arrows.meta, positioning}
+\usepackage{float}
+\usepackage{setspace}
+\usepackage[skip=0.6\baselineskip, indent=0pt]{parskip} % no paragraph indent, vertical gap instead
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+% optional: make comments right-aligned with a pointer
+\algrenewcommand\algorithmiccomment[1]{\hfill$\triangleright$~#1}
+
+\usepackage{amsmath, amssymb, amsthm, mathtools} % math environments
+\usepackage{mathrsfs}
+\usepackage{bm}             % bold math symbols
+\usepackage{physics}        % derivatives, bra-ket, etc.
+\usepackage{enumitem}       % custom lists
+\usepackage{tikz}           % diagrams
+\usepackage{pgfplots}       % plots
+\pgfplotsset{compat=1.18}
+\usepackage{graphicx}       % figures
+\usepackage{subcaption}     % subfigures
+\usepackage{xcolor}         % colors
+\usepackage{hyperref}       % hyperlinks
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue}
+
+%---------------- Theorem Environments ----------------
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+%---------------- Title Page ----------------
+\title{\textbf{Reproduction and Extension of DASMcC: \\
+       Multi-Class Cardiovascular Disease Prediction from 12-Lead ECG}\\[6pt]
+       \large {SIT307 -- Machine Learning \\ Portfolio Task: High Distinction}}
+\author{Student Name: Bao Minh Tran \\
+ Student ID: s224236373 \\
+  Deakin University}
+\date{\today}
+
+%=========================================================
+\begin{document}
+
+%---------------- Cover page ----------------
+\input{sections/cover_page.tex}
+
+\begin{abstract}
+\noindent
+This report aims to study the application of Machine Learning in Multi–class Cardiovascular Disease Prediction based on 12–lead ECG.
+We shall revisit a prior work on this application in Part 1, critise their work is of poor quality and from evidence collected within this report, we claim that the results are not reproducible.
+Therefore, in Part 2, we propose our solution to the same dataset, and observe more promising results with and without the use of DL feature extractors.
+Empirically, we claim that, tree–based models perform relatively well on high–dimensional data, at an expense of computational complexity.
+The implementation of this report can be found in \textcolor{red}{this link <missing>}.
+\end{abstract}
+
+%---------------- Links required by the task sheet ----------------
+% \section*{Supplementary Material}
+% \addcontentsline{toc}{section}{Supplementary Material}
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
+
+%=========================================================
+% Front matter -- shared by both Parts
+%=========================================================
+\section{Introduction and Related Work}
+\input{sections/intro.tex}
+
+\section{Dataset}
+\input{sections/dataset.tex}
+
+%=========================================================
+\newpage
+\part*{Part 1: Reproduction of Published Results}
+\label{sec:part_1}
+\addcontentsline{toc}{part}{Part 1: Reproduction of Published Results}
+%=========================================================
+
+\section{Reproduction Methodology and Protocol}
+\input{sections/part_1/method.tex}
+
+\section{Reproduction Results and Critical Analysis}
+\input{sections/part_1/analysis.tex}
+
+%=========================================================
+\newpage
+\part*{Part 2: Proposed Machine Learning Solution}
+\label{sec:part_2}
+\addcontentsline{toc}{part}{Part 2: Proposed Machine Learning Solution}
+%=========================================================
+
+% My idea.
+
+% \begin{itemize}
+%        \item 2D CNN is heavy since we must generate spectrogram, and the number of records we have is extensive -> skip it, but acknowledge there are related works
+%        \item Change the diagram, 12 x 10000 -> neurokit2 -> flatten -> train/test split
+%        \item Concat 1D CNN features + flattened neurokit2 features -> Encoder -> latent representation -> classifiers
+%        \item All the feature extractors, CNN or Autoencoder are trained on the training set only, so no data leakage
+% \end{itemize}
+
+\section{Motivation}
+\input{sections/part_2/motif.tex}
+
+\section{Proposed method}
+\input{sections/part_2/method.tex}
+
+\section{Results and Comparative Analysis}
+\input{sections/part_2/my_results.tex}
+
+\section{Ablation study: Full vs. Compressed feature vectors}
+\input{sections/part_2/ablation.tex}
+
+%=========================================================
+% Closing -- covers both Parts
+%=========================================================
+\section{Conclusion and Discussion}
+\input{sections/part_2/conclusion.tex}
+
+
+%=========================================================
+% \appendix
+% \section{Additional Experimental Results}
+
+%=========================================================
+\newpage
+\bibliographystyle{ieeetr}
+\bibliography{literature}
+
+\end{document}

@@ -1,0 +1,130 @@
+\label{sec:part_1_result_analysis}
+
+Having identified many inconsistencies and ambiguities in the original paper so far, we shall conduct the complete pipeline to reproduce their results.
+While working on this, we are aware of another critical inconsistency in their reported results, in some parts, they mention the use of 10–fold cross validation (CV), e.g. the tables presenting the per–class performance metrics of their models.
+Meanwhile, no explanation on the use of 10–fold CV nor single train/test split for the confusion matrices.
+
+In \textbf{Sec. \ref{sec:part_1_method}}, we introduce the methodologies and protocols in our pipeline as an attempt to reproduce the results presented in \cite{sinha2023dasmcc}.
+Nonetheless, they are quite fragmented, and thus, we shall unify them into one single pipeline as below.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    font=\footnotesize,
+    stage/.style = {draw, rounded corners=2pt, align=center, inner sep=3pt,
+                    minimum height=9mm, text width=26mm},
+    com/.style   = {stage, fill=black!6},
+    lane/.style  = {stage, text width=38mm, fill=black!2},
+    head/.style  = {stage, text width=38mm, fill=black!12, font=\footnotesize\bfseries},
+    fork/.style  = {stage, text width=34mm, fill=black!12, font=\footnotesize\bfseries},
+    arr/.style   = {-{Stealth[length=2mm]}, semithick}
+]
+% ---------- common stages ----------
+\node[com] (s1) at (0,0)     {\textbf{1.} Preprocessing\\ $(1000\times 12)\to(12000,)$};
+\node[com] (s2) at (3.3,0)   {\textbf{2.} Feature extraction\\ \texttt{neurokit2}: $\to(16,N)$};
+\node[com] (s3) at (6.6,0)   {\textbf{3.} Impute \& align\\ \texttt{ffill}, $N$ = R–peak median\\ $\to 16 \times N$ features};
+\node[com] (s4) at (9.9,0)   {\textbf{4.} Label encoding\\ NORM$\dots$CD $\to 0\dots4$};
+\draw[arr] (s1) -- (s2);
+\draw[arr] (s2) -- (s3);
+\draw[arr] (s3) -- (s4);
+
+% ---------- fork ----------
+\node[fork] (s5) at (4.95,-1.9) {5. Partitioning};
+\draw[arr] (s4.south) -- ++(0,-0.45) -| (s5.north);
+
+% ---------- protocol A ----------
+\node[head] (a1) at (2.1,-3.5) {Protocol A\\ single $80/20$ split};
+\node[lane] (a2) at (2.1,-5.0) {Scale $+$ \texttt{SMOTE}\\ on train split only};
+\node[lane] (a3) at (2.1,-6.4) {Fit the 6 classifiers};
+\node[lane] (a4) at (2.1,-7.8) {Evaluate on test split\\ \emph{(confusion matrices, class–wise ROC curves)}};
+\draw[arr] (a1) -- (a2); \draw[arr] (a2) -- (a3); \draw[arr] (a3) -- (a4);
+
+% ---------- protocol B ----------
+\node[head] (b1) at (7.8,-3.5) {Protocol B\\ $10$--fold CV};
+\node[lane] (b2) at (7.8,-5.0) {Scale $+$ \texttt{SMOTE}\\ on the 9 training folds};
+\node[lane] (b3) at (7.8,-6.4) {Fit the 6 classifiers};
+\node[lane] (b4) at (7.8,-7.8) {Evaluate on held--out fold};
+\node[lane] (b5) at (7.8,-9.4) {Average over the $10$ folds\\ \emph{(per–class metrics, across–class metrics)}};
+\draw[arr] (b1) -- (b2); \draw[arr] (b2) -- (b3); \draw[arr] (b3) -- (b4);
+\draw[arr] (b4) -- (b5);
+
+% repeat bracket
+\draw[dashed, black!55, rounded corners=3pt]
+     ($(b2.north west)+(-0.35,0.18)$) rectangle ($(b4.south east)+(0.35,-0.18)$);
+\node[font=\scriptsize\itshape, black!55, anchor=west]
+     at ($(b2.north east)+(0.42,0.05)$) {$\times\,10$};
+
+% ---------- fork arrows ----------
+\draw[arr] (s5.south) -- ++(0,-0.4) -| (a1.north);
+\draw[arr] (s5.south) -- ++(0,-0.4) -| (b1.north);
+\end{tikzpicture}
+\caption{Unified reproduction pipeline.}
+\label{fig:pipeline}
+\end{figure}
+
+\subsection{Reproduced versus Published Results}
+
+\input{sections/part_1/results.tex}
+
+\subsection{Critical Analysis of Discrepancies}
+\label{sec:part_1_discrepancy}
+
+From the outputs above, we are unable to reproduce the results presented in the original paper.
+
+In particular, their Table 12 places XGBoost first at $93.0$ F1 and $93.0\%$ accuracy, followed by RF ($92.0$, $91.0\%$), CatBoost ($89.0$, $89.0\%$), G–Boost ($87.0$, $88.0\%$) and KNN ($83.0$, $82.0\%$). 
+The corresponding entries of \textbf{Tab. \ref{tab:single_model_wise}} are $39.4$, $39.2$, $40.5$, $40.5$ and $25.4$ F1, witnessing significant drops between $46$ and $58$. 
+Noticeably, in their Tables 6, 7, 9, 10 and 11, HYP is the easiest class for every model, at F1 $96$–$99$, whereas NORM is the hardest, at $56$–$86$. 
+In our \textbf{Tab. \ref{tab:cv_classwise}}, NORM is our strongest class throughout, at $34.7$–$74.7$, and the three minority classes collapse to $21.7$–$36.0$.
+
+The \textbf{Fig. \ref{fig:reproduced_confusion}} is evaluated on held–out records, i.e. a single 80/20 train/test split. Therefore, the confusion matrices showcasing all models perform best for the most prevalent class in \texttt{PTB–XL}, i.e. NORM, and the models misclassify the other classes, mostly as the prevalent class.
+Meanwhile, their Figure 7, the distribution of classes are almost equivalent. More thorough quantitative observation is set out below.
+
+Looking at the ROC curves for \texttt{XGBoost}, their Figure 8 reports class–wise AUC from 0.98 to 1.00, whereas our \textbf{Fig. \ref{fig:reproduced_roc}} reports from 0.70 to 0.86, significantly diverge from their results.
+Although we agree with them that HYP is most easily separable class, their models, especially \texttt{KNN} captures all HYP classes in the test set is a clear signal of interpolation.
+In other words, the distribution of HYP in both train and test sets should be very similar, so that \texttt{KNN} can capture all of them, and thus, highly likely data leakage is presented, owing to \texttt{SMOTE} before train/test split.
+
+Regarding the the extra model \texttt{AdaBoost}, our \texttt{CatBoost} attains $40.5$ F1 at $59.0\%$ accuracy against \texttt{AdaBoost}'s $29.0$ and $35.6\%$, implying that, they indeed made a typo error in their abstract section.
+
+We shall present some basic calculations based on their figures, and claim the inconsistencies throughout their paper herein.
+
+Looking at their ``Table 3. Distribution of diagnostic superclasses'', we have:
+\begin{itemize}
+     \item \texttt{SMOTE} after train/test split
+          \begin{itemize}
+               \item Total sampples: $9528 + 4907 + 5250 + 2655 + 5486 = 27826$
+               \item 80\% train: $27826 \times 80\% \approx 22261$
+               \item 20\% test: $27826 \times 20\% \approx 5565$
+          \end{itemize}
+     \item \texttt{SMOTE} before train/test split
+          \begin{itemize}
+               \item Total sampples: $9528 \times 5 = 47640$
+               \item 80\% train: $47640 \times 80\% = 38112$
+               \item 20\% test: $47640 \times 20\% = 9528$
+          \end{itemize}
+\end{itemize}
+Next, let us count the total samples in the test set, by taking into account their confusion matrices presented in their \textbf{Figure 7}. Since all matrices share the same number of test samples, consider ``Confusion Matrix\_KNN'':
+$
+414 + 547 + 544 + 118 + 231 + 28 + 1748 + 19 + 4 + 10 + 22 + 57 + 1694 + 4 + 10 + 1796 + 15 + 22 + 28 + 6 + 1766 = 9083
+$.
+As described in their section \textbf{III.E. Data Augmentation}, they stated ``the process of data augmentation and feature scaling is done only on 80\% of training data...''.
+We can exclude the possibility that $5565$ is upsampled to $9083$ test samples counted above.
+Therefore, it is more likely that they do \texttt{SMOTE} before train/test split.
+We also note here, another annotation errors, they name the subcaption (b) and (c) as ``CM of RF'', while the subfigure (c) is ``Confusion Matrix\_XG''
+
+Another apparent evidence is that, by taking the sum across the rows in the ``Confusion Matrix\_KNN'', we have:
+\begin{itemize}
+     \item NORM (0): $414 + 547 + 544 + 118 + 231 = 1854$
+     \item MI (1): $28 + 1748 + 19 + 4 + 10 = 1809$
+     \item STTC (2): $22 + 57 + 1694 + 4 + 10 = 1787$
+     \item HYP (3): $0 + 0 + 0 + 1796 + 0 = 1796$
+     \item CD (4): $15 + 22 + 28 + 6 + 1766 = 1837$
+\end{itemize}
+The number of samples with respect to each class are almost identical, this is very unlikely to happen if they split the dataset prior to \texttt{SMOTE}, and thus, strongly supporting our point that they leak data into the training.
+Meanwhile, in their section \textbf{IV. Result and Discussion}, they stated ``The Confusion Matrices for all the five classifiers with 20\% of testing data are given in Figure 7.'', and indeed, the number of samples HYP (3), according to their Table 3, is 2655.
+There exists an extremely tiny probability for one to obtain 1796 test samples in HYP (3) for a 80/20 train/test split.
+
+To reinforce our statements, we shall perform the following ablation study, conducting SMOTE before train/test split and some additional modifications to close the gap between their presented results and reproduced results.
+More importantly, the act of \texttt{SMOTE} prior to train/test split, is a kind of data leakage. We present the section below to argue their results, and in fact, the ablation studies below are the closest to their presented results.
+
+\subsection{Ablation study}
+\input{sections/part_1/ablation.tex}
