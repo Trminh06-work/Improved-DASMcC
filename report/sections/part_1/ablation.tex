@@ -1,7 +1,7 @@
 \label{sec:ablation_part1}
 
 We shall do the following, details can be found in \texttt{ablation.ipynb}.
-In brief, we perform \texttt{StandardScaler()} and \texttt{SMOTE} prior to the train/test split stage, as this would introduce data leakage to the test set, and in fact, significantly improve the results, though it falsely report models' performance.
+In brief, we perform \texttt{StandardScaler()} and \texttt{SMOTE} prior to the train/test split stage, as this would introduce data leakage to the train set, and in fact, significantly improve the results on the test set, though it falsely report models' performance.
 We also realise that, either $(1000 \times 12)$ or $(12 \times 1000)$ can be flattened to $(12000,)$, the latter sounds more reasonable, as it places the lead axis before the time axis, and we hypothesize it would describe the raw ECG signals, more meaningfully and precisely.
 However, we still keep the same established flattening order, i.e. $(1000 \times 12) \to (12000,)$.
 Let us present the results obtained, by keeping the same configuration discussed earlier.
