@@ -8,7 +8,7 @@ The results in this section are extracted from \texttt{reproduction.ipynb}.
 
 Prior to this stage, the \textbf{Data Preprocessing} stage flattens 12–lead ECG diagrams into a single vector, i.e. $(1000 \times 12) \rightarrow (12000,)$.
 We also noticed a critical typo issue in the original paper, stating that ``ECG signal has 21000 dimensions'', but in fact, it only has 12000 dimensions, as written just before their section C in ``III. METHODS''.
-A visualisation of the first flattend ECG record in the dataset is, note that difference with the \textbf{Fig. \ref{fig:12_lead_ecg}}.
+% A visualisation of the first flattend ECG record in the dataset is, note that difference with the \textbf{Fig. \ref{fig:12_lead_ecg}}.
 
 After that, we apply the \texttt{neurokit2} package \cite{Makowski2021neurokit} to extract the features, i.e. $(12000,) \rightarrow (16, N)$, where $N$ is the number of peaks detected, and vary among ECG records.
 Moreover, as highlighted in \cite{GOLDBERGER2018xi}, each lead in the 12-lead ECG are all comprising of the same peak amplitudes, intervals and segments as shown in \textbf{Fig. \ref{fig:ecg-waveform}}, though each of which offers different viewpoints.
