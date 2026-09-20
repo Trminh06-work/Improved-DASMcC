@@ -182,4 +182,3 @@ Three observations confirm that the leakage reproduces the paper's protocol.
 First, recall equals accuracy for all six models in \textbf{Tab. \ref{tab:single_model_wise_ablation}}, which holds only when every class has equal support.
 Second, \textbf{Fig. \ref{fig:ablation_confusion}} contains $9{,}069$ test samples spread almost evenly across the classes ($1{,}780$–$1{,}844$ each), mirroring the $9{,}083$ in the paper, whereas a leakage–free $80/20$ split yields $3{,}249$.
 Third, HYP, only $3.8\%$ of a leakage–free test split, becomes the easiest class: its F1 is $95.2$–$97.3$ for every model except \texttt{AdaBoost}, and its AUC in \textbf{Fig. \ref{fig:ablation_roc_curve}} reaches $1.00$ for those five models, matching the paper's $1.00$.
-\texttt{AdaBoost} remains far behind at $40.6$ F1 and AUC $0.65$–$0.88$.

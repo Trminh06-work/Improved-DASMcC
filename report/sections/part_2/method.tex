@@ -177,7 +177,7 @@ Implementation of this model can be found in \texttt{CNN\_extractor.py}.
 \end{figure}
 
 Next, we illustrate how the encoder $f_{\theta^\ast}$ of \textbf{Step 5} is obtained.
-The model architecture is simpler than the above–mentioned model. In particular, after each linear transformation layer, we add non–linearity by use of \texttt{ReLU}, and neither normalisation nor more advanced techniques are applied.
+In particular, after each linear transformation layer, we add non–linearity by use of \texttt{ReLU}, and neither normalisation nor more advanced techniques are applied.
 The Encoder $f_\theta$ compresses the original feature into a so–called latent feature and the Decoder $f^{-1}_\phi$ reconstructs the original feature from the latent feature.
 We shall update $f_\theta$ and $f^{-1}_\phi$ by measuring the mean squared errors (MSE) between the original and the reconstructed vectors, a kind of self–supervised learning \cite{10.1145/3746280}. Doing this, $f_\theta$ is updated to reduce the dimensionality while maintaining the most information in the original feature, and $f^{-1}_\phi$ endeavours to reconstruct from the compressed feature.
 Considering the learning curves in \textbf{Fig. \ref{fig:learning_curves}}, we shall claim our Autoencoder can compress and recover roughly $70\%$ variance in the concatenated feature vector.

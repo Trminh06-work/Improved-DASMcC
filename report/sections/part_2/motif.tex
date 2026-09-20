@@ -12,7 +12,7 @@ Alternatively, we shall apply \texttt{neurokit2} to extract features from each E
 
 
 In the realm of Deep Learning, 1D CNN and 2D CNN have been developed to better classify CVDs based on ECG signals \cite{Wu2018ACO, NAROTAMO2024106141, DCNN4ECG}.
-Nonetheless, we shall avoid 2D CNN, as they require working with images, by converting ECG singals into spectrograms, which increase the computational complexity and memory usage of our models.
+Nonetheless, we shall avoid 2D CNN, as they require working with images, by converting ECG singals into spectrograms, which demand more computational resources and memory usage.
 We can then extract underlying features from raw ECG signals by applying 1D CNN on each ECG lead, passing through several temporal convolutional layers, and ultimately, we shall apply point–wise CNN kernel to fuse information across expanded leads to attain a $(125,)$ CNN–based feature vector.
 
 By concatenating both hand–crafted \texttt{neurokit2} features and the CNN–based features, the resulting vectors become excessively long.
