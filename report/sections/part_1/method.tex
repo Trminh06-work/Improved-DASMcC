@@ -12,7 +12,7 @@ We also noticed a critical typo issue in the original paper, stating that ``ECG 
 
 After that, we apply the \texttt{neurokit2} package \cite{Makowski2021neurokit} to extract the features, i.e. $(12000,) \rightarrow (16, N)$, where $N$ is the number of peaks detected, and vary among ECG records.
 Moreover, as highlighted in \cite{GOLDBERGER2018xi}, each lead in the 12-lead ECG are all comprising of the same peak amplitudes, intervals and segments as shown in \textbf{Fig. \ref{fig:ecg-waveform}}, though each of which offers different viewpoints.
-However, as described, they flatten the 12 leads prior to extracting features, and thus, do not exactly conform to the medical meaning of these features. Therefore, it results in two hurdles they acknowledged later.
+However, as described, they flatten the 12 leads prior to extracting features, and thus, do not exactly conform to the medical meaning of these features. Therefore, it results in two hurdles they acknowledged later in their paper.
 
 Besides, they do not present mathematical expressions to compute the intervals, hence, we shall rely on their description to work out these features, as below.
 PQ = Q - P, ST = T - S, QT = T - Q, PR = R - P, QRS = S - Q and $\text{RR} = R_i - R_{i - 1}$, where $R, P, Q, S, T$ are five peak amplitudes.
@@ -109,7 +109,7 @@ This is ambiguous, since in a standard 10–fold CV splits into 90\% train and 1
 \subsubsection{Modeling}
 
 We also noted another critical issue of the original paper, in their abstract, they stated the use of \texttt{AdaBoost}, also another typological error here, but later in the main body, they use \texttt{CatBoost}.
-Due to this inconsistency, we shall evaluate both \texttt{CatBoost} and \texttt{AdaBoost}. Up to our knowledge, \texttt{CatBoost} was originally made to improve accuracy for datasets composing of predominant number of categorical features \cite{CatBoost} (though it can still work in the presence of numerical features), while our feature space is continuous, rather than discrete.
+Due to this inconsistency, we shall evaluate both \texttt{CatBoost} and \texttt{AdaBoost}.
 
 In this experiment, we use, from \texttt{sklearn}: \texttt{KNeighborsClassifier}, \texttt{RandomForestClassifier},  \texttt{AdaBoostClassifier} and leverage \texttt{HistGradientBoostingClassifier} as an alternative to \texttt{GradientBoostingClassifier} due to resources constraints, and they were empirically proved to have almost identical classification performance \cite{sarker2025catboost, DI2024100368, Sanjaya2026.07.30.26359086}, from \texttt{catboost}: \texttt{CatBoostClassifier},
 from \texttt{xgboost}: \texttt{XGBClassifier}. We omit the models' descriptions, as they can be found in the corresponding papers and/or packages implementing them.
